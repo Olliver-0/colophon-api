@@ -1,0 +1,19 @@
+# Nome do workflow
+name: API Triage New Bugs
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-bug-to-project:
+    name: Add Bug to Project Board
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'bug')
+    steps:
+      - name: Add bug issue to 'Todo' column
+        uses: actions/add-to-project@v1.0.1
+        with:
+          project-url: 'https://github.com/users/Olliver-0/projects/2'
+          github-token: ${{ secrets.COLOPHON_PROJECT_ACTION }}
+          column_name: Todo
