@@ -39,6 +39,9 @@ jobs:
       pull-requests: read
       issues: read
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Get Linked Issue Number
         id: get-issue-number
         run: |
