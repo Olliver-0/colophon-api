@@ -1,4 +1,5 @@
 name: API Project Automation
+
 on:
   pull_request:
     types: [opened, ready_for_review]
@@ -7,16 +8,52 @@ jobs:
   move-card-to-review:
     name: Move Linked Issue to 'Review'
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+
     steps:
-      - name: Get linked issue
-        uses: actions-ecosystem/action-get-linked-issue@v1
-        id: linked-issue
+      - name: Get Linked Issue Number
+        id: get-issue-number
+        run: |
+          issue_number=$(echo "${{ github.event.pull_request.body }}" | grep -oE "(Closes|Fixes|Resolves) #[0-9]+" | grep -oE "[0-9]+")
+          if [ -z "$issue_number" ]; then
+            echo "No linked issue found in PR body."
+            echo "issue_number=" >> $GITHUB_OUTPUT
+          else
+            echo "Found issue number: $issue_number"
+            echo "issue_number=$issue_number" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get Issue and Project Item IDs
+        if: steps.get-issue-number.outputs.issue_number != ''
+        id: get-ids
+        env:
+          GH_TOKEN: ${{ secrets.COLOPHON_PROJECT_ACTION }}
+          ISSUE_NUMBER: ${{ steps.get-issue-number.outputs.issue_number }}
+          PROJECT_NUMBER: 2
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          issue_id=$(gh issue view $ISSUE_NUMBER --json id --jq .id)
+          echo "Issue Node ID: $issue_id"
+          echo "issue_id=$issue_id" >> $GITHUB_OUTPUT
+
+          item_id=$(gh project item-list ${{ env.PROJECT_NUMBER }} --owner ${{ env.REPO_OWNER }} --format json | jq -r --arg ISSUE_ID "$issue_id" '.items[] | select(.content.id == $ISSUE_ID) | .id')
+          echo "Project Item ID: $item_id"
+          echo "item_id=$item_id" >> $GITHUB_OUTPUT
 
       - name: Move issue to 'Review' column
-        uses: peter-evans/set-project-item-field@v4
-        with:
-          token: ${{ secrets.COLOPHON_PROJECT_ACTION }}
-          project-number: 2
-          item-id: ${{ steps.linked-issue.outputs.node-id }}
-          field-id: 'PVTF_lAHOC2nkfc4A-RBKzgxuMfE'
-          value: 'Review'
+        if: steps.get-ids.outputs.item_id != ''
+        env:
+          GH_TOKEN: ${{ secrets.COLOPHON_PROJECT_ACTION }}
+          PROJECT_NUMBER: 2
+          ITEM_ID: ${{ steps.get-ids.outputs.item_id }}
+        run: |
+          gh project item-edit \
+            --id "$ITEM_ID" \
+            --project-id ${{ env.PROJECT_NUMBER }} \
+            --field-name "Status" \
+            --single-select-option-name "Review"
+
