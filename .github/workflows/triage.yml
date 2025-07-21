@@ -12,7 +12,25 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'bug')
     steps:
       - name: Add bug issue to 'Todo' column
-        uses: actions/add-to-project@v1
-        with:
-          project-url: 'https://github.com/users/Olliver-0/projects/2'
-          github-token: ${{ secrets.COLOPHON_PROJECT_ACTION }}
+        env:
+          GH_TOKEN: ${{ secrets.COLOPHON_PROJECT_ACTION }}
+          PROJECT_NUMBER: 2
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          echo "Adding issue ${{ env.ISSUE_URL }} to project ${{ env.PROJECT_NUMBER }}..."
+          item_id=$(gh project item-add ${{ env.PROJECT_NUMBER }} --owner ${{ env.REPO_OWNER }} --url ${{ env.ISSUE_URL }} --format json | jq -r '.id')
+
+          if [ -z "$item_id" ]; then
+            echo "Failed to add issue to project."
+            exit 1
+          fi
+
+          echo "Successfully added item with ID: $item_id"
+
+          echo "Setting status to 'Todo' for item $item_id..."
+          gh project item-edit \
+            --id "$item_id" \
+            --project-id ${{ env.PROJECT_NUMBER }} \
+            --field-name "Status" \
+            --single-select-option-name "Todo"
