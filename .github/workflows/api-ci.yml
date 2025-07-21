@@ -66,7 +66,7 @@ jobs:
           issue_id=$(gh issue view $ISSUE_NUMBER --json id --jq .id)
           echo "Issue Node ID: $issue_id"
           echo "issue_id=$issue_id" >> $GITHUB_OUTPUT
-          item_id=$(gh project item-list ${{ env.PROJECT_NUMBER }} --owner ${{ env.REPO_OWNER }} --format json | jq -r --arg ISSUE_ID "$issue_id" '.items[] | select(.content.id == $ISSUE_ID) | .id')
+          item_id=$(gh project item-list ${{ env.PROJECT_NUMBER }} --owner "@me" --format json | jq -r --arg ISSUE_ID "$issue_id" '.items[] | select(.content.id == $ISSUE_ID) | .id') json | jq -r --arg ISSUE_ID "$issue_id" '.items[] | select(.content.id == $ISSUE_ID) | .id')
           echo "Project Item ID: $item_id"
           echo "item_id=$item_id" >> $GITHUB_OUTPUT
 
