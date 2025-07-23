@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '#/utils/password.util.js';
 import { UserData, User, UserResponse } from './user.types.js';
+import { AppError } from '#/utils/AppError.js';
 
-class UserService {
+export class UserService {
   constructor(private prisma: PrismaClient) {}
 
   public createUser = async (userData: UserData): Promise<UserResponse> => {
@@ -12,7 +13,7 @@ class UserService {
     });
 
     if (existingUser) {
-      throw new Error('This email already exists!');
+      throw new AppError('This email already exists!', 409);
     }
 
     const hashedPassword = await hashPassword(userData.password);
@@ -30,5 +31,3 @@ class UserService {
     return createdUser;
   };
 }
-
-export default UserService;

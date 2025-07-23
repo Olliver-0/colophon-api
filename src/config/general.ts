@@ -1,5 +1,5 @@
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE-URL não foi definida no .env');
+  throw new Error('FATAL ERROR: DATABASE_URL is not defined in the .env file.');
 }
 
 export interface AppConfig {
