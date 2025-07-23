@@ -18,7 +18,7 @@ export class UserService {
 
     const hashedPassword = await hashPassword(userData.password);
 
-    const newUser: User = await this.prisma.user.create({
+    const userRecord: User = await this.prisma.user.create({
       data: {
         email: userData.email,
         name: userData.name,
@@ -26,8 +26,8 @@ export class UserService {
       },
     });
 
-    const { password, ...createdUser } = newUser;
+    const { password, ...userResponse } = userRecord;
 
-    return createdUser;
+    return userResponse;
   };
 }
