@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '#/utils/password.util.js';
-import { UserData, User, UserResponse } from './user.types.js';
+import { User, UserResponse } from './user.types.js';
 import { AppError } from '#/utils/AppError.js';
+import { CreatedUserInput } from './user.validation.js';
 
 export class UserService {
   constructor(private prisma: PrismaClient) {}
 
-  public createUser = async (userData: UserData): Promise<UserResponse> => {
+  public createUser = async (userData: CreatedUserInput['body']): Promise<UserResponse> => {
     const existingUser: { email: string } | null = await this.prisma.user.findUnique({
       where: { email: userData.email },
       select: { email: true },
