@@ -1,11 +1,11 @@
 import prisma from '#/lib/prisma.js';
 import { Request, Response } from 'express';
-import { UserService } from './user.service.js';
+import { AuthService } from './auth.service.js';
 
-const userService = new UserService(prisma);
-export class UserController {
+const authService = new AuthService(prisma);
+export class AuthController {
   public register = async (req: Request, res: Response) => {
-    const createdUser = await userService.createUser(req.body);
+    const createdUser = await authService.createUser(req.body);
   
     return res.status(201).json({
       status: 'success',

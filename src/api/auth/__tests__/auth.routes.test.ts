@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import app from '#/app.js';
 import prisma from '#/lib/prisma.js';
 
-describe('User Routes', () => {
+describe('Auth Routes', () => {
   beforeAll(async () => {
     await prisma.bookshelfItem.deleteMany({});
     await prisma.review.deleteMany({});
@@ -19,8 +19,8 @@ describe('User Routes', () => {
     await prisma.$disconnect();
   });
 
-  describe('POST /api/users/register', () => {
-    it('deve criar um novo usuário e retornar status 201', async () => {
+  describe('POST /api/auth/register', () => {
+    it('should create a new user and return 201 status', async () => {
       const userData = {
         name: 'Test User',
         email: 'test@example.com',
@@ -28,7 +28,7 @@ describe('User Routes', () => {
       };
 
       const response = await supertest(app)
-        .post('/api/users/register')
+        .post('/api/auth/register')
         .send(userData);
 
       expect(response.status).toBe(201);

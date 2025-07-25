@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '#/utils/password.util.js';
-import { User, UserResponse } from './user.types.js';
+import { User, UserResponse } from './auth.types.js';
 import { AppError } from '#/utils/AppError.js';
-import { CreatedUserInput } from './user.validation.js';
+import { CreatedUserInput } from './auth.validation.js';
 
-export class UserService {
+export class AuthService {
   constructor(private prisma: PrismaClient) {}
 
   public createUser = async (userData: CreatedUserInput['body']): Promise<UserResponse> => {
