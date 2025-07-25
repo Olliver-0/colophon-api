@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '#/utils/password.util.js';
 import { User, UserResponse } from './auth.types.js';
 import { AppError } from '#/utils/AppError.js';
-import { CreatedUserInput } from './auth.validation.js';
+import { CreateUserInput } from './auth.validation.js';
 
 export class AuthService {
   constructor(private prisma: PrismaClient) {}
 
-  public createUser = async (userData: CreatedUserInput['body']): Promise<UserResponse> => {
+  public createUser = async (userData: CreateUserInput['body']): Promise<UserResponse> => {
     const existingUser: { email: string } | null = await this.prisma.user.findUnique({
       where: { email: userData.email },
       select: { email: true },
