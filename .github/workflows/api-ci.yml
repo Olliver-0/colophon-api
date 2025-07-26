@@ -28,6 +28,7 @@ jobs:
         run: npm test
         env:
           DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
+          JWT_SECRET_TEST: ${{secrets.JWT_SECRET_TEST}}
 
       - name: Check production build
         run: npm run build

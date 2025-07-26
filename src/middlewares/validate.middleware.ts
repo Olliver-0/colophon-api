@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
-import * as z4 from 'zod/v4/core';
+import z from 'zod';
 
 export const validate =
-  (schema: z4.$ZodObject) =>
+  (schema: z.core.$ZodObject) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      z4.parse(schema, {
+      z.core.parse(schema, {
         body: req.body,
         query: req.query,
         params: req.params,
       });
       return next();
     } catch (error) {
-      if (error instanceof ZodError) {
+      if (error instanceof z.core.$ZodError) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error',
