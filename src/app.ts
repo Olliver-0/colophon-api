@@ -3,10 +3,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import apiRoutes from './api/index.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
+import config from './config/index.js';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: config.app.frontend,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
