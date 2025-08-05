@@ -6,3 +6,55 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  email     String          @unique
+  name      String?
+  password  String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  bookshelf BookshelfItem[]
+  reviews   Review[]
+}
+
+model Book {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  googleBooksId  String          @unique
+  title          String
+  subtitle       String?
+  authors        String[]
+  publisher      String?
+  publishedDate  String?
+  description    String?
+  pageCount      Int?
+  categories     String[]
+  coverImageUrl  String?
+  usersOnShelves BookshelfItem[]
+  reviews        Review[]
+}
+
+model BookshelfItem {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  status   String
+  rating   Int?
+  progress Int?
+  addedAt  DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String   @db.ObjectId
+  book     Book     @relation(fields: [bookId], references: [id])
+  bookId   String   @db.ObjectId
+
+  @@unique([userId, bookId])
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String   @db.ObjectId
+  book      Book     @relation(fields: [bookId], references: [id])
+  bookId    String   @db.ObjectId
+}
