@@ -1,6 +1,6 @@
 {
   "name": "colophon-api",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "The back-end API for Colophon, responsible for managing users, books, and bookshelves data.",
   "author": "Natã Gabriel de Oliveira nata.gabriel.de.oliveira@gmail.com",
