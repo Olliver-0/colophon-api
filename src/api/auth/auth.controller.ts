@@ -27,4 +27,15 @@ export class AuthController {
 
     return res.status(200).json({ status: 'success', message: 'Logged in successfully' });
   };
+
+  public logout = (_req: Request, res: Response) => {
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api',
+    });
+
+    return res.status(200).json({ status: 'success', message: 'Logged out successfully'});
+  };
 }

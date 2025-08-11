@@ -8,5 +8,5 @@ const authController = new AuthController();
 
 router.post('/register', validate(createUserSchema), authController.register);
 router.post('/login', validate(authenticateUserSchema), authController.login);
-
+router.post('/logout', authController.logout);
 export default router;
