@@ -37,7 +37,6 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/login', () => {
     it('should authenticate a user and set a secure cookie', async () => {
-      // Arrange: Crie o usuário necessário para ESTE teste específico
       const credentials = {
         email: 'login.test@example.com',
         password: 'password123',
@@ -66,6 +65,36 @@ describe('Auth Routes', () => {
       expect(cookieHeader[0]).toMatch(/accessToken=/);
       expect(cookieHeader[0]).toMatch(/HttpOnly/);
       expect(cookieHeader[0]).toMatch(/SameSite=Strict/);
+    });
+  });
+
+  describe('POST /api/auth/logout', () => {
+    it('should clear the accessToken cookie and return 200 status', async () => {
+      const agent = supertest.agent(app);
+      const credentials = {
+        email: 'logout.test@example.com',
+        password: 'password123',
+      };
+      const hashedPassword = await hashPassword(credentials.password);
+      await prisma.user.create({
+        data: {
+          name: 'Logout Test User',
+          email: credentials.email,
+          password: hashedPassword,
+        },
+      });
+
+      await agent.post('/api/auth/login').send(credentials);
+
+      const response = await agent.post('/api/auth/logout').send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Logged out successfully');
+
+      const cookieHeader = response.headers['set-cookie'];
+      expect(cookieHeader).toBeDefined();
+      expect(cookieHeader[0]).toMatch(/accessToken=;/);
+      expect(cookieHeader[0]).toMatch(/Expires=Thu, 01 Jan 1970/);
     });
   });
 });
