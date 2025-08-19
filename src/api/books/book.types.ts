@@ -1,4 +1,4 @@
-interface Book {
+export interface Book {
   googleBooksId: string;
   title: string;
   subtitle?: string;
