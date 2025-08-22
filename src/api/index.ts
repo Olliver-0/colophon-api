@@ -7,6 +7,6 @@ const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-authRoutes.use('/books', bookRoutes);
+router.use('/books', bookRoutes);
 
 export default router;
