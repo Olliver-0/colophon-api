@@ -36,7 +36,7 @@ export class BookService {
           params: {
             q: query,
             key: this.apiKey,
-            maxResults: 20,
+            maxResults: 24,
           },
         }
       );
