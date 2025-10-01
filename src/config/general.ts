@@ -6,10 +6,12 @@ export interface AppConfig {
   port: number;
   frontend: string | undefined;
   databaseUrl: string;
+  googleBooksApiKey: string | undefined;
 }
 
 export const appConfig: AppConfig = {
   port: parseInt(process.env.PORT ?? '3000', 10),
   databaseUrl: process.env.DATABASE_URL,
   frontend: process.env.FRONTEND_URL,
+  googleBooksApiKey: process.env.GOOGLE_BOOKS_API_KEY,
 };
