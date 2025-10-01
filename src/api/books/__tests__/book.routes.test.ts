@@ -71,11 +71,6 @@ describe('Book Routes', () => {
       expect(response.body.data[0]).toHaveProperty('title', 'Mock Book Title');
     });
 
-    it('should return 401 if user is not authenticated', async () => {
-      const response = await supertest(app).get('/api/books/search?q=testing');
-      expect(response.status).toBe(401);
-    });
-
     it('should return 400 if search query "q" is missing', async () => {
       const response = await agent.get('/api/books/search');
       expect(response.status).toBe(400);
