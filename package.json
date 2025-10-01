@@ -47,7 +47,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
-    "zod": "^4.0.5"
+    "zod": "^4.0.5",
+    "express-rate-limit": "^8.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
