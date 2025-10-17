@@ -1,11 +1,22 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import apiRoutes from './api/index.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import config from './config/index.js';
 
 const app = express();
+
+const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+});
+
+app.use(globalRateLimiter)
 
 app.use(cors({
   origin: config.app.frontend,

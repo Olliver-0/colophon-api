@@ -17,4 +17,17 @@ export class UserController {
 
     return res.status(200).json({ status: 'success', data: user });
   };
+
+  public createBookshelfItem = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { googleBooksId, status } = req.body;
+  
+    const newBookshelfItem = await userService.addToShelf(
+      userId,
+      googleBooksId,
+      status
+    );
+  
+    return res.status(201).json({ status: 'success', data: newBookshelfItem });
+  };
 }
