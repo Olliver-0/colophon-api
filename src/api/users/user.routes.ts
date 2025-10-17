@@ -5,10 +5,9 @@ import { authMiddleware } from '#/middlewares/auth.middleware.js';
 
 const router = Router();
 
-// Apply rate limiter to sensitive routes
 const profileRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
 });

@@ -1,3 +1,5 @@
+import { BookshelfItem  as PrismaBookShelfItem } from "@prisma/client";
+
 export interface Book {
   googleBooksId: string;
   title: string;
@@ -10,3 +12,5 @@ export interface Book {
   categories: string[];
   coverImageUrl?: string;
 }
+
+export type BookShelfItem = PrismaBookShelfItem;

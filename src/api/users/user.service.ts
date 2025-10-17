@@ -1,9 +1,14 @@
-// src/api/users/user.service.ts
 import { PrismaClient } from '@prisma/client';
-import { UserResponse } from '../auth/auth.types.js';
+import { User, UserResponse } from '../auth/auth.types.js';
+import { Book, BookShelfItem } from '../books/book.types.js';
+import { BookService } from '../books/book.service.js';
 
 export class UserService {
-  constructor(private prisma: PrismaClient) {}
+  private bookService: BookService;
+
+  constructor(private prisma: PrismaClient) {
+    this.bookService = new BookService(this.prisma);
+  }
 
   public findUserById = async (id: string): Promise<UserResponse | null> => {
     const user = await this.prisma.user.findUnique({
@@ -16,5 +21,23 @@ export class UserService {
 
     const { password, ...userResponse } = user;
     return userResponse;
+  };
+
+  public addToShelf = async (
+    userId: User['id'],
+    googleBooksId: Book['googleBooksId'],
+    shelf: string
+  ): Promise<BookShelfItem> => {
+    const bookInDb = await this.bookService.findOrCreateBook(googleBooksId);
+
+    const addBook = await this.prisma.bookshelfItem.create({
+      data: {
+        status: shelf,
+        bookId: bookInDb.id,
+        userId: userId,
+      }
+    })
+
+    return addBook;
   };
 }

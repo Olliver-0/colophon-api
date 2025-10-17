@@ -2,6 +2,7 @@ import config from '#/config/index.js';
 import { AppError } from '#/utils/AppError.js';
 import axios from 'axios';
 import type { Book } from './book.types.js';
+import { type Book as PrismaBook, Prisma, PrismaClient } from '@prisma/client';
 
 interface GoogleBookItem {
   id: string;
@@ -24,6 +25,8 @@ export class BookService {
   private readonly apiKey = config.app.googleBooksApiKey;
   private readonly baseUrl = 'https://www.googleapis.com/books/v1/volumes';
 
+  constructor(private prisma: PrismaClient) {}
+
   public search = async (query: string): Promise<Book[]> => {
     if (!this.apiKey) {
       throw new AppError('Google Books API key is missing.', 500);
@@ -45,14 +48,42 @@ export class BookService {
         return [];
       }
 
-      return response.data.items.map(this.formatBook);
+      return response.data.items.map(this._formatBook);
     } catch (error) {
       console.error('Error searching books:', error);
       throw new AppError('Failed to fetch books from Google Books API.', 500);
     }
   };
 
-  private formatBook = (item: GoogleBookItem): Book => {
+  public findOrCreateBook = async (googleBooksId: string): Promise<PrismaBook> => {
+    const existingBook = await this.prisma.book.findUnique({
+      where: { googleBooksId: googleBooksId },
+    });
+
+    if (existingBook) {
+      return existingBook;
+    }
+
+    try {
+      const response = await axios.get<GoogleBookItem>(
+        `${this.baseUrl}/${googleBooksId}?key=${this.apiKey}`
+      );
+
+      const bookDataForDb = this._prepareBookForDatabase(response.data);
+
+      const newBook = await this.prisma.book.create({
+        data: bookDataForDb,
+      });
+
+      return newBook;
+    } catch (error) {
+      console.error('Error fetching single book:', error);
+      throw new AppError('Failed to fetch book from Google Books API.', 500);
+    }
+};
+
+
+  private _formatBook = (item: GoogleBookItem): Book => {
     return {
       googleBooksId: item.id,
       title: item.volumeInfo.title,
@@ -66,4 +97,20 @@ export class BookService {
       coverImageUrl: item.volumeInfo.imageLinks?.thumbnail,
     };
   };
+
+  private _prepareBookForDatabase = (item: GoogleBookItem): Prisma.BookCreateInput => {
+    const volumeInfo = item.volumeInfo;
+    return {
+      googleBooksId: item.id,
+      title: volumeInfo.title,
+      subtitle: volumeInfo.subtitle ?? null,
+      authors: volumeInfo.authors || [],
+      publisher: volumeInfo.publisher ?? null,
+      publishedDate: volumeInfo.publishedDate ?? null,
+      description: volumeInfo.description ?? null,
+      pageCount: volumeInfo.pageCount ?? null,
+      categories: volumeInfo.categories || [],
+      coverImageUrl: volumeInfo.imageLinks?.thumbnail ?? null,
+    };
+};
 }
