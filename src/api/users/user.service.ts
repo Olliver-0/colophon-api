@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { User, UserResponse } from '../auth/auth.types.js';
-import { Book, BookShelfItem } from '../books/book.types.js';
+import { Book } from '../books/book.types.js';
 import { BookService } from '../books/book.service.js';
+import { BookShelfItem } from './user.types.js';
 
 export class UserService {
   private bookService: BookService;
