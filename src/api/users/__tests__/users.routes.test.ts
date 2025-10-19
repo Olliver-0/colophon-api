@@ -102,4 +102,67 @@ describe('User Routes', () => {
       expect(response.body.message).toBe('Validation error');
     });
   });
+
+  describe('GET /api/users/me/bookshelf', () => {
+    it('should return a list of bookshelf items for the authenticated user', async () => {
+      const book1 = await prisma.book.create({
+        data: {
+          googleBooksId: 'book-1',
+          title: 'Book One',
+          authors: ['Author A'],
+        },
+      });
+
+      const book2 = await prisma.book.create({
+        data: {
+          googleBooksId: 'book-2',
+          title: 'Book Two',
+          authors: ['Author B'],
+        },
+      });
+
+      await prisma.bookshelfItem.create({
+        data: {
+          userId,
+          bookId: book1.id,
+          status: 'Read',
+        },
+      });
+
+      await prisma.bookshelfItem.create({
+        data: {
+          userId: userId,
+          bookId: book2.id,
+          status: 'Want to Read',
+        },
+      });
+
+      const response = await agent.get('/api/users/me/bookshelf');
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
+
+      expect(response.body.data).toBeInstanceOf(Array);
+      expect(response.body.data).toHaveLength(2);
+
+      expect(response.body.data[0].status).toBe('Read');
+      expect(response.body.data[0].book.title).toBe('Book One');
+      expect(response.body.data[1].status).toBe('Want to Read');
+      expect(response.body.data[1].book.title).toBe('Book Two');
+    });
+
+    it('should return an empty array if the user has no books on the shelf', async () => {
+      const response = await agent.get('/api/users/me/bookshelf');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBeInstanceOf(Array);
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    it('should return 401 for unauthenticated requests', async () => {
+      const response = await supertest(app).get('/api/users/me/bookshelf');
+
+      expect(response.status).toBe(401);
+    });
+  });
 });
