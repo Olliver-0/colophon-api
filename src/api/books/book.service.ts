@@ -55,7 +55,9 @@ export class BookService {
     }
   };
 
-  public findOrCreateBook = async (googleBooksId: string): Promise<PrismaBook> => {
+  public findOrCreateBook = async (
+    googleBooksId: string
+  ): Promise<PrismaBook> => {
     const existingBook = await this.prisma.book.findUnique({
       where: { googleBooksId: googleBooksId },
     });
@@ -80,8 +82,7 @@ export class BookService {
       console.error('Error fetching single book:', error);
       throw new AppError('Failed to fetch book from Google Books API.', 500);
     }
-};
-
+  };
 
   private _formatBook = (item: GoogleBookItem): Book => {
     return {
@@ -98,7 +99,9 @@ export class BookService {
     };
   };
 
-  private _prepareBookForDatabase = (item: GoogleBookItem): Prisma.BookCreateInput => {
+  private _prepareBookForDatabase = (
+    item: GoogleBookItem
+  ): Prisma.BookCreateInput => {
     const volumeInfo = item.volumeInfo;
     return {
       googleBooksId: item.id,
@@ -112,5 +115,5 @@ export class BookService {
       categories: volumeInfo.categories || [],
       coverImageUrl: volumeInfo.imageLinks?.thumbnail ?? null,
     };
-};
+  };
 }

@@ -18,6 +18,7 @@ const userActionsRateLimiter = rateLimit({
 const userController = new UserController();
 
 router.get('/me', userActionsRateLimiter, authMiddleware, userController.getProfile);
-router.post('/me/bookshelf', userActionsRateLimiter, authMiddleware, validate(createBookshelfItemSchema), userController.createBookshelfItem);
+router.post('/me/bookshelf', userActionsRateLimiter, authMiddleware, validate(createBookshelfItemSchema), userController.addBookToShelf);
+router.get('/me/bookshelf', userActionsRateLimiter, authMiddleware, userController.getBookshelf)
 
 export default router;

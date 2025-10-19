@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { User, UserResponse } from '../auth/auth.types.js';
+import { BookshelfItem, PrismaClient } from '@prisma/client';
+import { User, UserResponse } from '../users/user.types.js';
 import { Book } from '../books/book.types.js';
 import { BookService } from '../books/book.service.js';
 import { BookShelfItem } from './user.types.js';
@@ -24,7 +24,7 @@ export class UserService {
     return userResponse;
   };
 
-  public addToShelf = async (
+  public createBookshelfItem = async (
     userId: User['id'],
     googleBooksId: Book['googleBooksId'],
     shelf: string
@@ -36,9 +36,17 @@ export class UserService {
         status: shelf,
         bookId: bookInDb.id,
         userId: userId,
-      }
-    })
+      },
+    });
 
     return addBook;
+  };
+
+  public findBookshelfByUserId = async (userId: string): Promise<BookshelfItem[]> => {
+    const bookshelfItems = await this.prisma.bookshelfItem.findMany({
+      where: { userId },
+      include: { book: true },
+    });
+    return bookshelfItems;
   };
 }
