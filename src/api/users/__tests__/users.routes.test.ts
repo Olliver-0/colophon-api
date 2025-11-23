@@ -75,13 +75,13 @@ describe('User Routes', () => {
 
       const bookshelfData = {
         googleBooksId: 'mock-google-id',
-        status: 'Want to Read',
+        status: 'WantToRead',
       };
 
       const response = await agent.post('/api/users/me/bookshelf').send(bookshelfData);
 
       expect(response.status).toBe(201);
-      expect(response.body.data.status).toBe('Want to Read');
+      expect(response.body.data.status).toBe('WantToRead');
       expect(response.body.data.userId).toBe(userId);
 
       const bookInDb = await prisma.book.findUnique({ where: { googleBooksId: 'mock-google-id' } });
@@ -91,7 +91,7 @@ describe('User Routes', () => {
     it('should return 401 for unauthenticated requests', async () => {
       const response = await supertest(app).post('/api/users/me/bookshelf').send({
         googleBooksId: 'mock-google-id',
-        status: 'Want to Read',
+        status: 'WantToRead',
       });
       expect(response.status).toBe(401);
     });
