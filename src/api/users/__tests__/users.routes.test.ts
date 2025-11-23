@@ -165,4 +165,100 @@ describe('User Routes', () => {
       expect(response.status).toBe(401);
     });
   });
+
+  describe('PATCH /api/users/me/bookshelf/:itemId', () => {
+    it('should update the status of a bookshelf item and return 200', async () => {
+      const book = await prisma.book.create({
+        data: {
+          googleBooksId: 'book-to-update',
+          title: 'Book To Update',
+          authors: ['Author'],
+        },
+      });
+
+      const originalItem = await prisma.bookshelfItem.create({
+        data: {
+          userId: userId,
+          bookId: book.id,
+          status: 'WantToRead',
+        },
+      });
+
+      const response = await agent
+        .patch(`/api/users/me/bookshelf/${originalItem.id}`)
+        .send({ status: 'Reading' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
+      expect(response.body.data.id).toBe(originalItem.id);
+      expect(response.body.data.status).toBe('Reading');
+
+      const updatedItemInDb = await prisma.bookshelfItem.findUnique({
+        where: { id: originalItem.id },
+      });
+      expect(updatedItemInDb?.status).toBe('Reading');
+    });
+
+    it('should return 404 if the item does not exist', async () => {
+      const fakeId = '000000000000000000000000'; 
+      const response = await agent
+        .patch(`/api/users/me/bookshelf/${fakeId}`)
+        .send({ status: 'Read' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch(/not found/i);
+    });
+
+    it('should return 404 if the item belongs to another user', async () => {
+      const otherUser = await prisma.user.create({
+        data: {
+          email: 'other@example.com',
+          password: 'pass',
+          name: 'Other',
+        },
+      });
+
+      const book = await prisma.book.create({
+        data: { googleBooksId: 'other-book', title: 'Other Book', authors: [] },
+      });
+      
+      const otherUserItem = await prisma.bookshelfItem.create({
+        data: {
+          userId: otherUser.id,
+          bookId: book.id,
+          status: 'WantToRead',
+        },
+      });
+
+      const response = await agent
+        .patch(`/api/users/me/bookshelf/${otherUserItem.id}`)
+        .send({ status: 'Read' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 400 if status is invalid', async () => {
+      const book = await prisma.book.create({
+        data: { googleBooksId: 'valid-book', title: 'Book', authors: [] },
+      });
+      const item = await prisma.bookshelfItem.create({
+        data: { userId, bookId: book.id, status: 'WantToRead' },
+      });
+
+      const response = await agent
+        .patch(`/api/users/me/bookshelf/${item.id}`)
+        .send({ status: 'InvalidStatus' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation error');
+    });
+
+    it('should return 401 for unauthenticated requests', async () => {
+      const response = await supertest(app)
+        .patch('/api/users/me/bookshelf/any-id')
+        .send({ status: 'Read' });
+
+      expect(response.status).toBe(401);
+    });
+  });
 });

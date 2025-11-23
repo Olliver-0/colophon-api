@@ -12,7 +12,7 @@ const router = Router();
 
 const userActionsRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 100,
   standardHeaders: true,
   legacyHeaders: false,
   message:
@@ -41,7 +41,7 @@ router.get(
   userController.getBookshelf
 );
 router.patch(
-  '/me/bookshelf:itemId',
+  '/me/bookshelf/:itemId',
   userActionsRateLimiter,
   authMiddleware,
   validate(updateBookshelfItemSchema),

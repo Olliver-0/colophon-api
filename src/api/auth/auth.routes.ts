@@ -8,7 +8,7 @@ const router = Router();
 
 const authLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 10,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many authentication attempts from this IP, please try again after 5 minutes.',
