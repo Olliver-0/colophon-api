@@ -47,5 +47,11 @@ router.patch(
   validate(updateBookshelfItemSchema),
   userController.updateBookshelfItem
 );
+router.delete(
+  '/me/bookshelf/:itemId',
+  userActionsRateLimiter,
+  authMiddleware,
+  userController.deleteBookFromShelf
+);
 
 export default router;

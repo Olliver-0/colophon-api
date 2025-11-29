@@ -74,10 +74,32 @@ export class UserService {
       });
       return updatedItem;
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new AppError('Bookshelf item not found or does not belong to the user.', 404);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new AppError(
+          'Bookshelf item not found or does not belong to the user.',
+          404
+        );
       }
       throw error;
+    }
+  };
+
+  public removeBookshelfItem = async (
+    userId: string,
+    itemId: string
+  ): Promise<void> => {
+    const result = await this.prisma.bookshelfItem.deleteMany({
+      where: {
+        id: itemId,
+        userId: userId,
+      },
+    });
+  
+    if (result.count === 0) {
+      throw new AppError('Bookshelf item not found or does not belong to the user.', 404);
     }
   };
 }

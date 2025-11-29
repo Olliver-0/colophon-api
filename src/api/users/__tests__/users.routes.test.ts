@@ -261,4 +261,85 @@ describe('User Routes', () => {
       expect(response.status).toBe(401);
     });
   });
+
+  describe('DELETE /api/users/me/bookshelf/:itemId', () => {
+    it('should remove a book from the shelf and return 204', async () => {
+      const book = await prisma.book.create({
+        data: {
+          googleBooksId: 'book-to-delete',
+          title: 'Book To Delete',
+          authors: ['Author'],
+        },
+      });
+
+      const itemToDelete = await prisma.bookshelfItem.create({
+        data: {
+          userId: userId,
+          bookId: book.id,
+          status: 'WantToRead',
+        },
+      });
+
+      const response = await agent.delete(`/api/users/me/bookshelf/${itemToDelete.id}`);
+
+      expect(response.status).toBe(204);
+      expect(response.body).toEqual({});
+
+      const deletedItemInDb = await prisma.bookshelfItem.findUnique({
+        where: { id: itemToDelete.id },
+      });
+      expect(deletedItemInDb).toBeNull();
+
+      const bookStillExists = await prisma.book.findUnique({
+        where: { id: book.id },
+      });
+      expect(bookStillExists).not.toBeNull();
+    });
+
+    it('should return 404 if the item does not exist', async () => {
+      const fakeId = '000000000000000000000000';
+      
+      const response = await agent.delete(`/api/users/me/bookshelf/${fakeId}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch(/not found/i);
+    });
+
+    it('should return 404 if the item belongs to another user', async () => {
+      const otherUser = await prisma.user.create({
+        data: {
+          email: 'victim@example.com',
+          password: 'pass',
+          name: 'Victim',
+        },
+      });
+
+      const book = await prisma.book.create({
+        data: { googleBooksId: 'other-book-del', title: 'Other', authors: [] },
+      });
+      
+      const otherUserItem = await prisma.bookshelfItem.create({
+        data: {
+          userId: otherUser.id,
+          bookId: book.id,
+          status: 'Reading',
+        },
+      });
+
+      const response = await agent.delete(`/api/users/me/bookshelf/${otherUserItem.id}`);
+
+      expect(response.status).toBe(404);
+      
+      const itemStillInDb = await prisma.bookshelfItem.findUnique({
+        where: { id: otherUserItem.id },
+      });
+      expect(itemStillInDb).not.toBeNull();
+    });
+
+    it('should return 401 for unauthenticated requests', async () => {
+      const response = await supertest(app).delete('/api/users/me/bookshelf/any-id');
+
+      expect(response.status).toBe(401);
+    });
+  });
 });

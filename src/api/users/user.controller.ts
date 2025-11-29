@@ -53,4 +53,13 @@ export class UserController {
 
     return res.status(200).json({ status: 'success', data: updatedItem });
   };
+
+  public deleteBookFromShelf = async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { itemId } = req.params;
+  
+    await userService.removeBookshelfItem(userId, itemId);
+  
+    return res.status(204).send();
+  };
 }
