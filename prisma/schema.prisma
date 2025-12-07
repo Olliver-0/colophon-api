@@ -58,3 +58,9 @@ model Review {
   book      Book     @relation(fields: [bookId], references: [id])
   bookId    String   @db.ObjectId
 }
+
+enum BookshelfStatus {
+  Read
+  Reading
+  WantToRead
+}

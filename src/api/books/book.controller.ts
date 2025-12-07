@@ -1,8 +1,9 @@
 import { BookService } from "./book.service.js";
 import { Request, Response } from 'express';
 import { SearchBooksInput } from "./book.validation.js";
+import prisma from "#/lib/prisma.js";
 
-const bookService = new BookService();
+const bookService = new BookService(prisma);
 
 export class BookController {
   public searchBooks = async (req: Request, res: Response) => {

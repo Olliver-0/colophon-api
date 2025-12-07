@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { comparePassword, hashPassword } from '#/utils/password.util.js';
-import { User, UserResponse } from './auth.types.js';
 import { AppError } from '#/utils/AppError.js';
 import { AuthenticateUserInput, CreateUserInput } from './auth.validation.js';
 import jwt from 'jsonwebtoken';
 import config from '#/config/index.js';
+import { User, UserResponse } from '../users/user.types.js';
 
 export class AuthService {
   constructor(private prisma: PrismaClient) {}
